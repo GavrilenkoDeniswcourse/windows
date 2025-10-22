@@ -1,17 +1,19 @@
 package com.example.windows;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import android.os.Bundle;
 import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
 
 public class morning extends AppCompatActivity {
 
@@ -26,6 +28,20 @@ public class morning extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        createNotificationChannel();
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    "WORKDAY_CHANNEL_ID",
+                    "Рабочие уведомления",
+                    NotificationManager.IMPORTANCE_DEFAULT
+            );
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(channel);
+        }
     }
 
     public void onClickmain(View view) {
@@ -36,7 +52,15 @@ public class morning extends AppCompatActivity {
     public void onClickday(View view) {
         Intent intent = new Intent(this, day.class);
         startActivity(intent);
-        Toast toast = Toast.makeText(this, "Скоро конец рабочего дня",Toast.LENGTH_SHORT);
-        toast.show();
+        showNotification();
+    }
+
+    private void showNotification() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "WORKDAY_CHANNEL_ID")
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentTitle("Рабочий день")
+                .setContentText("Скоро конец рабочего дня!")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        NotificationManagerCompat.from(this).notify(1, builder.build());
     }
 }
